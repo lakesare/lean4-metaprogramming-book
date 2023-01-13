@@ -38,18 +38,16 @@ jobs:
       run: mv out.tex '${{ env.BOOK_NAME }}.tex' && mv out.pdf '${{ env.BOOK_NAME }}.pdf'
 
     - name: Upload PDF to artifact storage
-      if: ${{ github.event.pull_request }}
       uses: actions/upload-artifact@v2
       with:
         name: "${{ env.BOOK_NAME }}"
         path: "${{ env.BOOK_NAME }}.pdf"
 
     - uses: "marvinpinto/action-automatic-releases@latest"
-      if: ${{ !github.event.pull_request }}
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
-        title: "${{ env.BOOK_NAME }}"
+        title: ${{ env.BOOK_NAME }}
         files: |
           "${{ env.BOOK_NAME }}.tex"
           "${{ env.BOOK_NAME }}.pdf"
