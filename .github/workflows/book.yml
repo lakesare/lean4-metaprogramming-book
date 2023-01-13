@@ -27,9 +27,9 @@ jobs:
     - name: Set BOOK_NAME environment variable
       run: |
         if [[ -n "${{ github.event.pull_request }}" ]]; then
-            BOOK_NAME=$(echo "Metaprogramming in Lean 4 - PR-${{ github.event.pull_request.number }}")
+          BOOK_NAME=$(echo "Metaprogramming in Lean 4 - PR-${{ github.event.pull_request.number }}")
         else
-            BOOK_NAME="Metaprogramming in Lean 4"
+          BOOK_NAME="Metaprogramming in Lean 4"
         fi
         echo "BOOK_NAME=${BOOK_NAME}" >> $GITHUB_ENV
 
@@ -41,15 +41,15 @@ jobs:
       if: ${{ github.event.pull_request }}
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.BOOK_NAME }}
-        path: ${{ env.BOOK_NAME }}.pdf
+        name: "${{ env.BOOK_NAME }}"
+        path: "${{ env.BOOK_NAME }}.pdf"
 
     - uses: "marvinpinto/action-automatic-releases@latest"
       if: ${{ !github.event.pull_request }}
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
-        title: ${{ env.BOOK_NAME }}
+        title: "${{ env.BOOK_NAME }}"
         files: |
-          ${{ env.BOOK_NAME }}.tex
-          ${{ env.BOOK_NAME }}.pdf
+          "${{ env.BOOK_NAME }}.tex"
+          "${{ env.BOOK_NAME }}.pdf"
