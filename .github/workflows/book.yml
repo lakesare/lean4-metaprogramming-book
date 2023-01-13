@@ -1,9 +1,6 @@
 name: Book
 
-on:
-  push:
-    branches:
-      - master
+on: [push]
 
 jobs:
   book:
@@ -27,15 +24,32 @@ jobs:
       # Running twice appears to be necessary to not get a blank TOC?!
       run: lualatex -shell-escape out.tex && lualatex -shell-escape out.tex
 
+    - name: Set BOOK_NAME environment variable
+      run: |
+        if [[ -n "${{ github.event.pull_request }}" ]]; then
+            BOOK_NAME=$(echo "Metaprogramming in Lean 4 - PR-${{ github.event.pull_request.number }}")
+        else
+            BOOK_NAME="Metaprogramming in Lean 4"
+        fi
+        echo "BOOK_NAME=${BOOK_NAME}" >> $GITHUB_ENV
+
     - name: Rename
       # Minted doesn't like filenames with spaces in them unfortunately, so we mv.
-      run: mv out.tex 'Metaprogramming in Lean 4.tex' && mv out.pdf 'Metaprogramming in Lean 4.pdf'
+      run: mv out.tex '${{ env.BOOK_NAME }}.tex' && mv out.pdf '${{ env.BOOK_NAME }}.pdf'
+
+    - name: Upload PDF to artifact storage
+      if: ${{ github.event.pull_request }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.BOOK_NAME }}
+        path: ${{ env.BOOK_NAME }}.pdf
 
     - uses: "marvinpinto/action-automatic-releases@latest"
+      if: ${{ !github.event.pull_request }}
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
-        title: "Metaprogramming in Lean 4"
+        title: ${{ env.BOOK_NAME }}
         files: |
-          Metaprogramming in Lean 4.tex
-          Metaprogramming in Lean 4.pdf
+          ${{ env.BOOK_NAME }}.tex
+          ${{ env.BOOK_NAME }}.pdf
